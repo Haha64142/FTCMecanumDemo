@@ -3,9 +3,12 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "Robot Relative Mecanum")
 public class RobotRelativeTeleOp extends LinearOpMode {
+
+    private ElapsedTime runtime = ElapsedTime();
 
     private DcMotor motorFL;
     private DcMotor motorFR;
@@ -25,8 +28,6 @@ public class RobotRelativeTeleOp extends LinearOpMode {
         motorBR.setDirection(DcMotor.Direction.REVERSE);
 
         waitForStart();
-
-        if (isStopRequested()) return;
 
         while (opModeIsActive()) {
             double leftY = -gamepad1.left_stick_y; // The Y stick is always inverted

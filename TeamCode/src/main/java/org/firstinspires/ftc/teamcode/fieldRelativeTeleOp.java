@@ -4,16 +4,22 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 @TeleOp(name = "Field Relative Mecanum")
 public class FieldRelativeTeleOp extends LinearOpMode {
 
+    private ElapsedTime runtime = ElapsedTime();
+
     private DcMotor motorFL;
     private DcMotor motorFR;
     private DcMotor motorBL;
     private DcMotor motorBR;
+    private IMU imu;
+
+    private robotOrientation;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -27,7 +33,7 @@ public class FieldRelativeTeleOp extends LinearOpMode {
         motorFR.setDirection(DcMotor.Direction.REVERSE);
         motorBR.setDirection(DcMotor.Direction.REVERSE);
 
-        IMU imu = hardwareMap.get(IMU.class, "imu");
+        imu = hardwareMap.get(IMU.class, "imu");
         IMU.Parameters imuParameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.UP,
                 RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
@@ -35,8 +41,8 @@ public class FieldRelativeTeleOp extends LinearOpMode {
         imu.initialize(imuParameters);
 
         waitForStart();
-
-        if (isStopRequested()) return;
+        imu.resetYaw();
+        runtime.reset();
 
         while (opModeIsActive()) {
             double leftY = -gamepad1.left_stick_y; // The Y stick is always inverted
@@ -48,7 +54,9 @@ public class FieldRelativeTeleOp extends LinearOpMode {
                 imu.resetYaw();
             }
 
-            double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            // If rotation is needed earlier, call the robotOrientation function earlier
+            robotOrientation = imu.getYawPitchRollAngles();
+            double botHeading = robotOrientation.getYaw(AngleUnit.RADIANS);
             drive(leftY, leftX, rightX, botHeading);
         }
     }
